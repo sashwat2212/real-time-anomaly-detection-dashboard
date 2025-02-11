@@ -2,6 +2,8 @@ from fastapi import FastAPI, File, UploadFile
 import shutil
 import os
 from ocr import extract_text  # Import OCR function
+from nlp_model import detect_anomaly  # Import the NLP model function
+
 
 app = FastAPI()
 
@@ -24,13 +26,16 @@ async def upload_file(file: UploadFile = File(...)):
     extracted_text = ""
     if file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
         extracted_text = extract_text(file_path)
+        anomaly_result = detect_anomaly(extracted_text)
     elif file.filename.lower().endswith('.pdf'):
         extracted_text = extract_text(file_path)
+        anomaly_result = detect_anomaly(extracted_text)
 
     return {
         "filename": file.filename,
         "message": "File uploaded successfully!",
-        "extracted_text": extracted_text
+        "extracted_text": extracted_text,
+        "anomaly_result": anomaly_result
     }
 
 if __name__ == "__main__":
